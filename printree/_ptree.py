@@ -69,7 +69,6 @@ def ftree(obj, /) -> str:
     def f():
         _root.set(obj)
         return "\n".join(_itree(obj))
-
     ctx = contextvars.copy_context()
     return ctx.run(f)
 
@@ -82,9 +81,8 @@ def _newline_repr(obj_repr, /, prefix) -> str:
 
 def _itree(obj, /, subscription=".", prefix="", last=True):
     _children = []
-    root = _root.get()
     item_repr = f': {obj}'
-    if root is obj and subscription != ".":
+    if _root.get() is obj and subscription != ".":
         item_repr = (f": <Recursion on {type(obj).__name__} with id={id(object)}>")
     elif isinstance(obj, (str, bytes)):
         # for string and bytes, indent new lines with an appropiate prefix so that
