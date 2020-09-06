@@ -20,10 +20,10 @@ Other objects will be considered "leaf nodes":
 >>> dct = {
 ...     "multi\nlined\n\ttabbed key": 1,
 ...     True: {
-...         "uno": {"A", "B", "C"},
+...         "uno": {"ABC", "XYZ"},
 ...         "dos": r"B:\newline\tab\like.ext",
 ...         "tres": {
-...             "leaf": "string",
+...             "leaf": b"bytes",
 ...             "numbers": (42, -17, 0.01)
 ...         },
 ...     },
@@ -40,15 +40,14 @@ Other objects will be considered "leaf nodes":
    |- True [items=3]
    |  |- dos: B:\newline\tab\like.ext
    |  |- tres [items=2]
-   |  |  |- leaf: string
+   |  |  |- leaf: b'bytes'
    |  |  `- numbers [items=3]
    |  |     |- 0: -17
    |  |     |- 1: 0.01
    |  |     `- 2: 42
-   |  `- uno [items=3]
-   |     |- 0: A
-   |     |- 1: B
-   |     `- 2: C
+   |  `- uno [items=2]
+   |     |- 0: ABC
+   |     `- 1: XYZ
    |- foo [empty]
    |- ('unsortable', ('tuple', 'as', 'key')) [items=2]
    |  |- 0: multi
