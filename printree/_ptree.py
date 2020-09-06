@@ -7,7 +7,10 @@ _root = contextvars.ContextVar('root')
 
 
 def ptree(obj, /) -> None:
-    """Similar output to the "tree" command line, but for python containers.
+    """Print a tree-like representation of the given object data structure.
+
+    :py:class:`collections.abc.Iterable` instances will be branches, with the exception of :py:class:`str` and :py:class:`bytes`.
+    All other objects will be leaves.
 
     Examples:
         >>> ptree({"x", len, 42})
@@ -40,7 +43,7 @@ def ptree(obj, /) -> None:
 
 
 def ftree(obj, /) -> str:
-    """Return the formatted tree representation of the given object as a string."""
+    """Return the formatted tree representation of the given object data structure as a string."""
     def f():
         _root.set(obj)
         return "\n".join(_itree(obj))
@@ -55,10 +58,10 @@ def _newline_repr(obj_repr, /, prefix) -> str:
 
 
 def _itree(obj, /, subscription=".", prefix="", last=True):
-    _children = []
+    children = []
     item_repr = f': {obj}'
-    if _root.get() is obj and subscription != ".":
-        item_repr = (f": <Recursion on {type(obj).__name__} with id={id(object)}>")
+    if _root.get() is obj and subscription != ".":  # recursive reference in container
+        item_repr = f": <Recursion on {type(obj).__name__} with id={id(object)}>"
     elif isinstance(obj, (str, bytes)):
         # for string and bytes, indent new lines with an appropiate prefix so that
         # a string line "new\nline" is adjusted to something like:
@@ -76,15 +79,15 @@ def _itree(obj, /, subscription=".", prefix="", last=True):
         accessor = (lambda i, v: (i, *v)) if ismap else lambda i, v: (i, i, v)
         try:
             enumerated = enumerate(sorted(enumerateable))
-        except TypeError:
+        except TypeError:  # un-sortable, enumerate as-is
             enumerated = enumerate(enumerateable)
-        _children.extend(accessor(*enum) for enum in enumerated)
-        item_repr = f' [{items=}]' if (items := len(_children)) else " [empty]"
+        children.extend(accessor(*enum) for enum in enumerated)
+        item_repr = f' [{items=}]' if (items := len(children)) else " [empty]"
 
     newline_subscription_prefix = f"{prefix}{'   ' if last else '|  '}"
     subscription_repr = _newline_repr(f"{subscription}", newline_subscription_prefix)
     yield f"{prefix}{'`- ' if last else '|- '}{subscription_repr}{item_repr}"
     prefix += "   " if last else "|  "
-    child_count = len(_children)
-    for index, key, value in _children:
+    child_count = len(children)
+    for index, key, value in children:
         yield from _itree(value, subscription=key, prefix=prefix, last=index == (child_count - 1))
