@@ -1,4 +1,11 @@
 # printree
+
+[![Build Status](https://travis-ci.org/chrizzFTD/printree.svg?branch=master)](https://travis-ci.org/chrizzFTD/printree)
+[![Coverage Status](https://coveralls.io/repos/github/chrizzFTD/printree/badge.svg?branch=master)](https://coveralls.io/github/chrizzFTD/printree?branch=master)
+[![Documentation Status](https://readthedocs.org/projects/printree/badge/?version=latest)](https://printree.readthedocs.io/en/latest/?badge=latest)
+[![PyPI version](https://badge.fury.io/py/printree.svg)](https://badge.fury.io/py/printree)
+[![PyPI](https://img.shields.io/pypi/pyversions/printree.svg)](https://pypi.python.org/pypi/printree)
+
 Tree-like formatting for arbitrary python data structures.
 
 Similar to pretty print ([pprint](https://docs.python.org/3/library/pprint.html)) but in the form of a tree:
