@@ -16,7 +16,7 @@ class TestTree(unittest.TestCase):
                |  `- 1: 2
                `- C: <Recursion on dict with id=140712966998864>
         """
-        dct = {"A\nB": "x\ny", "B": (1, 2)}
+        dct = {"A\nB": "x\ny", "B": (1, "2")}
         dct["C"] = dct
         actual = ftree(dct)
         expected = '`- . [items=3]\n   |- A\n   |  B: x\n   |       y\n   |- B [items=2]\n   |  |- 0: 1\n   |  `- 1: 2\n   `- C: <Recursion on dict with id='
