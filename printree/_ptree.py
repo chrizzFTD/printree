@@ -16,45 +16,20 @@ def ptree(obj, /) -> None:
            |- 1: 42
            `- 2: x
 
-        >>> dct = {
-        ...     "multi\nlined\n\ttabbed key": 1,
-        ...     "foo": {
-        ...         "uno": {"A", "B", "C"},
-        ...         "dos": r"B:\newline\tab\like.ext",
-        ...         "tres": {
-        ...             "leaf": "string",
-        ...             "numbers": (42, -17, 0.01)
-        ...         },
-        ...     },
-        ...     ("unsortable", ("tuple", "as", "key")):
-        ...         ["multi\nline\nfirst", "multi\nline\nlast"]
-        ... }
-        >>> dct['recursive_reference'] = dct
+        >>> dct = {"A": {"x\ny", (42, -17, 0.01), True}, "B": 42}
+        >>> dct["C"] = dct
         >>> ptree(dct)
-        `- . [items=4]
-           |- multi
-           |  lined
-           |    tabbed key: 1
-           |- foo [items=3]
-           |  |- dos: B:\newline\tab\like.ext
-           |  |- tres [items=2]
-           |  |  |- leaf: string
-           |  |  `- numbers [items=3]
-           |  |     |- 0: -17
-           |  |     |- 1: 0.01
-           |  |     `- 2: 42
-           |  `- uno [items=3]
-           |     |- 0: A
-           |     |- 1: B
-           |     `- 2: C
-           |- ('unsortable', ('tuple', 'as', 'key')) [items=2]
-           |  |- 0: multi
-           |  |     line
-           |  |     first
-           |  `- 1: multi
-           |        line
-           |        last
-           `- recursive_reference: <Recursion on dict with id=140712966998864>
+        `- . [items=3]
+           |- A [items=3]
+           |  |- 0: True
+           |  |- 1: x
+           |  |     y
+           |  `- 2 [items=3]
+           |     |- 0: -17
+           |     |- 1: 0.01
+           |     `- 2: 42
+           |- B: 42
+           `- C: <Recursion on dict with id=140712966998864>
     """
     def f():
         _root.set(obj)
