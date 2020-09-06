@@ -1,7 +1,7 @@
 # printree
 Tree-like formatting for python containers.
 
-Similar to pretty print ([`pprint`](https://docs.python.org/3/library/pprint.html)) but in the form of a tree:
+Similar to pretty print ([pprint](https://docs.python.org/3/library/pprint.html)) but in the form of a tree:
 
 ```python
 >>> from printree import ptree, ftree
@@ -14,7 +14,7 @@ Similar to pretty print ([`pprint`](https://docs.python.org/3/library/pprint.htm
 '`- . [items=3]\n   |- 0: <built-in function len>\n   |- 1: 42\n   `- 2: x'
 ```
 
-Instances of `abc.Iterable` (with the exception of `str` & `bytes`) should be translated into a tree-like form.
+Instances of [abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable) (with the exception of [str](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str) & [bytes](https://docs.python.org/3/library/stdtypes.html#bytes-objects)) should be translated into a tree-like form.
 Other objects will be considered "leaf nodes":
 ```python
 >>> dct = {

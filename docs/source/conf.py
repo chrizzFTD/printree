@@ -41,6 +41,7 @@ extensions = ['sphinx.ext.autodoc',
               # 'sphinx.ext.githubpages',
               'sphinx.ext.graphviz',
               'sphinx.ext.inheritance_diagram',
+              'm2r2',
               'sphinx_autodoc_typehints']
 
 # Add any paths that contain templates here, relative to this directory.
@@ -50,6 +51,7 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
+source_suffix = ['.rst', '.md']
 
 
 # -- Options for HTML output -------------------------------------------------

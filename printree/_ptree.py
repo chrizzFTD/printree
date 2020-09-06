@@ -16,7 +16,7 @@ def ptree(obj, /) -> None:
            |- 1: 42
            `- 2: x
 
-        >>> dct = {"A": {"x\ny", (42, -17, 0.01), True}, "B": 42}
+        >>> dct = {"A": {"x\\ny", (42, -17, 0.01), True}, "B": 42}
         >>> dct["C"] = dct
         >>> ptree(dct)
         `- . [items=3]
@@ -40,7 +40,7 @@ def ptree(obj, /) -> None:
 
 
 def ftree(obj, /) -> str:
-    """Return the formatted tree representation of the given object as a string"""
+    """Return the formatted tree representation of the given object as a string."""
     def f():
         _root.set(obj)
         return "\n".join(_itree(obj))
