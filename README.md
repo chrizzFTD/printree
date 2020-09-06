@@ -1,5 +1,5 @@
 # printree
-Tree-like formatting for python containers.
+Tree-like formatting for arbitrary python data structures.
 
 Similar to pretty print ([pprint](https://docs.python.org/3/library/pprint.html)) but in the form of a tree:
 
