@@ -56,3 +56,11 @@ class TestTree(unittest.TestCase):
         with patch('sys.stdout', new=StringIO()) as redirected:
             ptree(dct)  # should be exactly as the ftree result, plus a new line
             self.assertEqual(redirected.getvalue(), actual+'\n')
+
+    def test_unsortable_recursion(self):
+        a = []
+        b = [a]
+        a.append(b)
+        actual = ftree([a, b])
+        expected = f'`- . [items=2]\n   |- 0 [items=1]\n   |  `- 0 [items=1]\n   |     `- 0: <Recursion on list with id={id(a)}>\n   `- 1: <Recursion on list with id={id(b)}>'
+        self.assertEqual(expected, actual)

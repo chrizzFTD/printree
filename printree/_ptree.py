@@ -89,7 +89,7 @@ def _itree(obj, /, subscription=".", prefix="", last=True):
         accessor = (lambda i, v: (i, *v)) if ismap else lambda i, v: (i, i, v)
         try:
             enumerated = enumerate(sorted(enumerateable))
-        except TypeError:  # un-sortable, enumerate as-is
+        except (TypeError, RecursionError):  # un-sortable, enumerate as-is
             enumerated = enumerate(enumerateable)
         children.extend(accessor(*enum) for enum in enumerated)
         item_repr = f' [{items=}]' if (items := len(children)) else " [empty]"
