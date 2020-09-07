@@ -1,9 +1,10 @@
 import textwrap
 import contextvars
+from pprint import isrecursive
 from itertools import count
 from collections import abc
 
-_root = contextvars.ContextVar('root')
+_recursive_ids = contextvars.ContextVar('recursive')
 
 
 def ptree(obj, /) -> None:
@@ -35,7 +36,7 @@ def ptree(obj, /) -> None:
            `- C: <Recursion on dict with id=140712966998864>
     """
     def f():
-        _root.set(obj)
+        _recursive_ids.set(set())
         for i in _itree(obj):
             print(i)
     ctx = contextvars.copy_context()
@@ -45,7 +46,7 @@ def ptree(obj, /) -> None:
 def ftree(obj, /) -> str:
     """Return the formatted tree representation of the given object data structure as a string."""
     def f():
-        _root.set(obj)
+        _recursive_ids.set(set())
         return "\n".join(_itree(obj))
     ctx = contextvars.copy_context()
     return ctx.run(f)
@@ -59,18 +60,27 @@ def _newline_repr(obj_repr, /, prefix) -> str:
 
 def _itree(obj, /, subscription=".", prefix="", last=True):
     children = []
-    item_repr = f': {obj}'
-    if _root.get() is obj and subscription != ".":  # recursive reference in container
-        item_repr = f": <Recursion on {type(obj).__name__} with id={id(object)}>"
+    level_suffix = '   ' if last else '|  '
+    newline_prefix = f"{prefix}{level_suffix}"
+    subscription_repr = _newline_repr(f"{subscription}", newline_prefix)
+    recursive_ids = _recursive_ids.get()
+    recursive = isrecursive(obj)
+    objid = id(obj)
+    if recursive and objid in recursive_ids:
+        item_repr = f": <Recursion on {type(obj).__name__} with id={objid}>"
     elif isinstance(obj, (str, bytes)):
-        # for string and bytes, indent new lines with an appropiate prefix so that
-        # a string line "new\nline" is adjusted to something like:
+        # for text, indent new lines with an appropiate prefix so that
+        # a string like "new\nline" is adjusted to something like:
         #      ...
         #      |- 42: new
         #      |      line
         #      ...
-        newline_item_prefix = f'{prefix}{"     " if last else "|    "}{" " * len(f"{subscription}")}'
-        item_repr = _newline_repr(item_repr, newline_item_prefix)
+        # for this, calculate how many characters each new line should have for padding
+        # based on the last line from the subscription repr
+        prefix_len = len(newline_prefix)
+        no_prefix = subscription_repr.splitlines()[-1].expandtabs()[prefix_len:]
+        newline_padding = len(no_prefix) + prefix_len + 2  # last 2 are ": " below
+        item_repr = _newline_repr(f': {obj}', f"{newline_prefix:<{newline_padding}}")
     elif isinstance(obj, abc.Iterable):
         # for other iterable objects, sort and ennumerate so that we can anticipate what
         # prefix we should use (e.g. are we the last item in the iteration?)
@@ -83,11 +93,14 @@ def _itree(obj, /, subscription=".", prefix="", last=True):
             enumerated = enumerate(enumerateable)
         children.extend(accessor(*enum) for enum in enumerated)
         item_repr = f' [{items=}]' if (items := len(children)) else " [empty]"
+    else:
+        item_repr = f': {obj}'
 
-    newline_subscription_prefix = f"{prefix}{'   ' if last else '|  '}"
-    subscription_repr = _newline_repr(f"{subscription}", newline_subscription_prefix)
+    if recursive:
+        recursive_ids.add(objid)
+
     yield f"{prefix}{'`- ' if last else '|- '}{subscription_repr}{item_repr}"
-    prefix += "   " if last else "|  "
+    prefix += level_suffix
     child_count = len(children)
     for index, key, value in children:
         yield from _itree(value, subscription=key, prefix=prefix, last=index == (child_count - 1))

@@ -22,10 +22,10 @@ Similar to pretty print ([pprint](https://docs.python.org/3/library/pprint.html)
 ```
 
 Instances of [abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable) (with the exception of [str](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str) & [bytes](https://docs.python.org/3/library/stdtypes.html#bytes-objects)) should be translated into a tree-like form.
-Other objects will be considered "leaf nodes":
+All other objects will be considered "leaf nodes":
 ```python
 >>> dct = {
-...     "multi\nlined\n\ttabbed key": 1,
+...     "foo": [],
 ...     True: {
 ...         "uno": {"ABC", "XYZ"},
 ...         "dos": r"B:\newline\tab\like.ext",
@@ -34,16 +34,13 @@ Other objects will be considered "leaf nodes":
 ...             "numbers": (42, -17, 0.01)
 ...         },
 ...     },
-...     "foo": [],
 ...     ("unsortable", ("tuple", "as", "key")):
-...         ["multi\nline\nfirst", "multi\nline\nlast"]
+...         {"multi\nlined\n\ttabbed key": "multi\nline\n\ttabbed value"}
 ... }
->>> dct['recursive_reference'] = dct
+>>> dct["recursion"] = [1, dct, 2]
 >>> ptree(dct)
-`- . [items=5]
-   |- multi
-   |  lined
-   |    tabbed key: 1
+`- . [items=4]
+   |- foo [empty]
    |- True [items=3]
    |  |- dos: B:\newline\tab\like.ext
    |  |- tres [items=2]
@@ -55,13 +52,14 @@ Other objects will be considered "leaf nodes":
    |  `- uno [items=2]
    |     |- 0: ABC
    |     `- 1: XYZ
-   |- foo [empty]
-   |- ('unsortable', ('tuple', 'as', 'key')) [items=2]
-   |  |- 0: multi
-   |  |     line
-   |  |     first
-   |  `- 1: multi
-   |        line
-   |        last
-   `- recursive_reference: <Recursion on dict with id=140712966998864>
+   |- ('unsortable', ('tuple', 'as', 'key')) [items=1]
+   |  `- multi
+   |     lined
+   |            tabbed key: multi
+   |                        line
+   |                            tabbed value
+   `- recursion [items=3]
+      |- 0: 1
+      |- 1: <Recursion on dict with id=2317960566912>
+      `- 2: 2
 ```
