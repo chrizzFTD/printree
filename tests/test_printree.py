@@ -1,14 +1,14 @@
 import unittest
 from io import StringIO
 from unittest.mock import patch
-from printree import ftree, ptree
+from printree import ftree, ptree, AsciiFormatter
 
 
 class TestTree(unittest.TestCase):
     def test_sorted_with_recursion(self):
         """Confirm multiline key, value and recursion build a similar tree to:
 
-            `- . [items=5]
+             --. [items=5]
                |- A [items=1]
                |  `- b'xy' [items=1]
                |     `- (True, False) [items=1]
@@ -50,17 +50,17 @@ class TestTree(unittest.TestCase):
         dct["G"] = {".": dct, "": rec}
         dctid = id(dct)
         recid = id(rec)
-        expected = f"`- . [items=5]\n   |- A [items=1]\n   |  `- b'xy' [items=1]\n   |     `- (True, False) [items=1]\n   |        `- AB\n   |           CD\n   |           \tEF\n   |           \t\tGH\tIJ: xx\n   |                                y\n   |                                y\n   |                                \tzz\n   |- B [items=1]\n   |  `- 0 [items=1]\n   |     `- b'xy' [items=1]\n   |        `- (True, False) [items=1]\n   |           `- AB\n   |              CD\n   |              \tEF\n   |              \t\tGH\tIJ: xx\n   |                                        y\n   |                                        y\n   |                                        \tzz\n   |- C\n   |  D: x\n   |     y\n   |- F [items=2]\n   |  |- 0: 1\n   |  `- 1: 2\n   `- G [items=2]\n      |-  [items=3]\n      |  |- 0: 1\n      |  |- 1: 2\n      |  `- 2: <Recursion on list with id={recid}>\n      `- .: <Recursion on dict with id={dctid}>"
-        actual = ftree(dct)
+        expected = f" --. [items=5]\n   |- A [items=1]\n   |  `- b'xy' [items=1]\n   |     `- (True, False) [items=1]\n   |        `- AB\n   |           CD\n   |           \tEF\n   |           \t\tGH\tIJ: xx\n   |                                y\n   |                                y\n   |                                \tzz\n   |- B [items=1]\n   |  `- 0 [items=1]\n   |     `- b'xy' [items=1]\n   |        `- (True, False) [items=1]\n   |           `- AB\n   |              CD\n   |              \tEF\n   |              \t\tGH\tIJ: xx\n   |                                        y\n   |                                        y\n   |                                        \tzz\n   |- C\n   |  D: x\n   |     y\n   |- F [items=2]\n   |  |- 0: 1\n   |  `- 1: 2\n   `- G [items=2]\n      |-  [items=3]\n      |  |- 0: 1\n      |  |- 1: 2\n      |  `- 2: <Recursion on list with id={recid}>\n      `- .: <Recursion on dict with id={dctid}>"
+        actual = ftree(dct, formatter=AsciiFormatter)
         self.assertEqual(expected, actual)
         with patch('sys.stdout', new=StringIO()) as redirected:
-            ptree(dct)  # should be exactly as the ftree result, plus a new line
+            ptree(dct, AsciiFormatter)  # should be exactly as the ftree result, plus a new line
             self.assertEqual(redirected.getvalue(), actual+'\n')
 
     def test_unsortable_recursion(self):
         a = []
         b = [a]
         a.append(b)
-        actual = ftree([a, b])
-        expected = f'`- . [items=2]\n   |- 0 [items=1]\n   |  `- 0 [items=1]\n   |     `- 0: <Recursion on list with id={id(a)}>\n   `- 1: <Recursion on list with id={id(b)}>'
+        actual = ftree([a, b], AsciiFormatter)
+        expected = f' --. [items=2]\n   |- 0 [items=1]\n   |  `- 0 [items=1]\n   |     `- 0: <Recursion on list with id={id(a)}>\n   `- 1: <Recursion on list with id={id(b)}>'
         self.assertEqual(expected, actual)

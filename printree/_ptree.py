@@ -7,22 +7,48 @@ from collections import abc
 _recursive_ids = contextvars.ContextVar('recursive')
 
 
-def ptree(obj, /) -> None:
+class UnicodeFormatter:
+    level = 0
+    ROOT = ' ──┐'
+    LEVEL_NEXT = '│  '
+    LEVEL_LAST = '   '
+    BRANCH_NEXT = '├─ '
+    BRANCH_LAST = '└─ '
+
+    @classmethod
+    def format_branch(cls, obj):
+        return f' [{items=}]' if (items:= len(obj)) else " [empty]"
+
+    @classmethod
+    def format_leaf(cls, obj):
+        return f': {obj}'
+
+
+class AsciiFormatter(UnicodeFormatter):
+    ROOT = ' --.'
+    LEVEL_NEXT = '|  '
+    BRANCH_NEXT = '|- '
+    BRANCH_LAST = '`- '
+
+
+def ptree(obj, /, formatter=None) -> None:
     """Print a tree-like representation of the given object data structure.
 
     :py:class:`collections.abc.Iterable` instances will be branches, with the exception of :py:class:`str` and :py:class:`bytes`.
     All other objects will be leaves.
 
+    :param formatter: Optional formatter object to use Defaults to :class:`printree.UnicodeFormat`.
+
     Examples:
         >>> ptree({"x", len, 42})
-        `- . [items=3]
-           |- 0: <built-in function len>
-           |- 1: 42
-           `- 2: x
+         ──┐ [items=3]
+           ├─ 0: x
+           ├─ 1: 42
+           └─ 2: <built-in function len>
 
         >>> dct = {"A": {"x\\ny", (42, -17, 0.01), True}, "B": 42}
         >>> dct["C"] = dct
-        >>> ptree(dct)
+        >>> ptree(dct, formatter=AsciiFormatter)
         `- . [items=3]
            |- A [items=3]
            |  |- 0: True
@@ -35,19 +61,21 @@ def ptree(obj, /) -> None:
            |- B: 42
            `- C: <Recursion on dict with id=140712966998864>
     """
+    formatter = formatter() if formatter else UnicodeFormatter()
     def f():
         _recursive_ids.set(set())
-        for i in _itree(obj):
+        for i in _itree(obj, formatter, subscription=formatter.ROOT):
             print(i)
     ctx = contextvars.copy_context()
     ctx.run(f)
 
 
-def ftree(obj, /) -> str:
+def ftree(obj, /, formatter=None) -> str:
     """Return the formatted tree representation of the given object data structure as a string."""
+    formatter = formatter() if formatter else UnicodeFormatter()
     def f():
         _recursive_ids.set(set())
-        return "\n".join(_itree(obj))
+        return "\n".join(_itree(obj, formatter, subscription=formatter.ROOT))
     ctx = contextvars.copy_context()
     return ctx.run(f)
 
@@ -58,9 +86,10 @@ def _newline_repr(obj_repr, /, prefix) -> str:
     return textwrap.indent(obj_repr, prefix, newline)
 
 
-def _itree(obj, /, subscription=".", prefix="", last=True):
+def _itree(obj, formatter, subscription, prefix="", last=True, level=0):
+    formatter.level = level
     children = []
-    level_suffix = '   ' if last else '|  '
+    level_suffix = formatter.LEVEL_LAST if last else formatter.LEVEL_NEXT
     newline_prefix = f"{prefix}{level_suffix}"
     subscription_repr = _newline_repr(f"{subscription}", newline_prefix)
     recursive_ids = _recursive_ids.get()
@@ -92,15 +121,17 @@ def _itree(obj, /, subscription=".", prefix="", last=True):
         except (TypeError, RecursionError):  # un-sortable, enumerate as-is
             enumerated = enumerate(enumerateable)
         children.extend(accessor(*enum) for enum in enumerated)
-        item_repr = f' [{items=}]' if (items := len(children)) else " [empty]"
+        item_repr = formatter.format_branch(children)
     else:
-        item_repr = f': {obj}'
+        item_repr = formatter.format_leaf(obj)
 
     if recursive:
         recursive_ids.add(objid)
 
-    yield f"{prefix}{'`- ' if last else '|- '}{subscription_repr}{item_repr}"
+    # implementation detail: if there's no prefix, we're root
+    fullprefix = f"{prefix}{formatter.BRANCH_LAST if last else formatter.BRANCH_NEXT}{subscription_repr}" if prefix else formatter.ROOT
+    yield f"{fullprefix}{item_repr}"
     prefix += level_suffix
     child_count = len(children)
     for index, key, value in children:
-        yield from _itree(value, subscription=key, prefix=prefix, last=index == (child_count - 1))
+        yield from _itree(value, formatter, key, prefix, index == (child_count - 1), level + 1)
