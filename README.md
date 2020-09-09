@@ -83,12 +83,13 @@ The main members to override from the provided classes are:
 - `BRANCH_NEXT`
 - `BRANCH_LAST`
 
-For more advanced use cases, the `level` attribute will be automatically set on the formatter instance to indicate the current depth in the traversal of the tree.
+The `level` attribute will be automatically set on the formatter instance to indicate the current depth in the traversal of the tree.
 
 For example, to make the formatter print with a different color on every branch level, this could be an approach:
 
 ```python
 from printree import ptree, UnicodeFormatter
+
 class ColoredUnicode(UnicodeFormatter):
     colors = {
         0: '\033[31m',  # red
@@ -98,19 +99,26 @@ class ColoredUnicode(UnicodeFormatter):
         4: '\033[35m',  # magenta
     }
     _RESET = '\033[0m'
+
     def __getattribute__(self, item):
         if item in ("LEVEL_NEXT", "LEVEL_LAST", "BRANCH_NEXT", "BRANCH_LAST"):
             return f"{self.color}{getattr(super(), item)}{self._RESET}"
         return super().__getattribute__(item)
+
     @property
     def color(self):
         return self.colors[self.level % len(self.colors)]
+
     @property
-    def ROOT(self):
+    def ROOT(self):  # for root (level 0), prefer the color of the children (level 1) 
         return f'{self.colors[1]}{super().ROOT}{self._RESET}'
 
 multiline = {"foo": {False: {"AB\nCD": "xy", 42:len}, True: []}, ("bar",): []}
 dct = {"A": multiline, "B": (multiline,), "C\nD": "x\ny", "F": (1, "2")}
+
+import os
+os.system("")  # required on windows only
+
 ptree(dct, formatter=ColoredUnicode)
 ```
 Which outputs:
