@@ -63,7 +63,7 @@ All other objects will be considered "leaf nodes":
       ├─ 1: <Recursion on dict with id=2355961208192>
       └─ 2: 2
 ```
-By default, a [UnicodeFormatter](printree._ptree.py) is used, but an AsciiFormatter is provided as well:
+By default, a [UnicodeFormatter](printree/_ptree.py) is used, but an AsciiFormatter is provided as well:
 ```python
 >>> from printree import ptree, AsciiFormatter
 >>> obj = [42, {"foo": (True, False)}]
