@@ -9,6 +9,7 @@
 
 .. mdinclude:: ../../README.md
 
+.. image:: ../../colored_example.svg
 
 Module contents
 ---------------
