@@ -17,7 +17,8 @@ class UnicodeFormatter:
 
     @classmethod
     def format_branch(cls, obj):
-        return f' [{items=}]' if (items:= len(obj)) else " [empty]"
+        items = len(obj)
+        return f' [items={items}]' if items else " [empty]"
 
     @classmethod
     def format_leaf(cls, obj):
@@ -31,7 +32,7 @@ class AsciiFormatter(UnicodeFormatter):
     BRANCH_LAST = '`- '
 
 
-def ptree(obj, /, formatter=None) -> None:
+def ptree(obj, formatter=None) -> None:
     """Print a tree-like representation of the given object data structure.
 
     :py:class:`collections.abc.Iterable` instances will be branches, with the exception of :py:class:`str` and :py:class:`bytes`.
@@ -70,7 +71,7 @@ def ptree(obj, /, formatter=None) -> None:
     ctx.run(f)
 
 
-def ftree(obj, /, formatter=None) -> str:
+def ftree(obj, formatter=None) -> str:
     """Return the formatted tree representation of the given object data structure as a string."""
     formatter = formatter() if formatter else UnicodeFormatter()
     def f():
@@ -80,7 +81,7 @@ def ftree(obj, /, formatter=None) -> str:
     return ctx.run(f)
 
 
-def _newline_repr(obj_repr, /, prefix) -> str:
+def _newline_repr(obj_repr, prefix) -> str:
     counter = count()
     newline = lambda x: next(counter) != 0
     return textwrap.indent(obj_repr, prefix, newline)
