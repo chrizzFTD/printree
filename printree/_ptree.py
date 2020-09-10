@@ -8,6 +8,7 @@ _recursive_ids = contextvars.ContextVar('recursive')
 
 
 class UnicodeFormatter:
+    """Formatter details"""
     level = 0
     ROOT = ' ──┐'
     LEVEL_NEXT = '│  '
@@ -16,16 +17,19 @@ class UnicodeFormatter:
     BRANCH_LAST = '└─ '
 
     @classmethod
-    def format_branch(cls, obj):
+    def format_branch(cls, obj: list) -> str:
+        """Get the string representation of a branch element in the tree."""
         items = len(obj)
         return f' [items={items}]' if items else " [empty]"
 
     @classmethod
-    def format_leaf(cls, obj):
+    def format_leaf(cls, obj) -> str:
+        """Get the string representation of a leaf element in the tree."""
         return f': {obj}'
 
 
 class AsciiFormatter(UnicodeFormatter):
+    """Ascii Formatter details"""
     ROOT = ' --.'
     LEVEL_NEXT = '|  '
     BRANCH_NEXT = '|- '
