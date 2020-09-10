@@ -70,7 +70,7 @@ All other objects will be considered "leaf nodes":
       └─ 2: 2
 ```
 
-## Customizing format 
+## Custom formatters 
 By default, a [UnicodeFormatter](printree/_ptree.py) is used, but an `AsciiFormatter` is provided as well:
 ```python
 >>> from printree import ptree, AsciiFormatter
@@ -83,7 +83,7 @@ By default, a [UnicodeFormatter](printree/_ptree.py) is used, but an `AsciiForma
          |- 0: False
          `- 1: True
 ```
-## Customizing formatting
+New formatters can change each of the string representations of the tree.
 The main members to override from the provided classes are:
 - `ROOT`
 - `LEVEL_NEXT`

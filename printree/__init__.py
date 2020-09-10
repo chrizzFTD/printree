@@ -1,1 +1,1 @@
-from ._ptree import ptree, ftree, AsciiFormatter, UnicodeFormatter
+from ._ptree import ptree, ftree, AsciiFormatter, Formatter

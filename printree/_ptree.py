@@ -7,8 +7,11 @@ from collections import abc
 _recursive_ids = contextvars.ContextVar('recursive')
 
 
-class UnicodeFormatter:
-    """Formatter details"""
+class Formatter:
+    """Default formatter for printree.
+
+    Uses unicode characters.
+    """
     level = 0
     ROOT = ' ──┐'
     LEVEL_NEXT = '│  '
@@ -28,8 +31,8 @@ class UnicodeFormatter:
         return f': {obj}'
 
 
-class AsciiFormatter(UnicodeFormatter):
-    """Ascii Formatter details"""
+class AsciiFormatter(Formatter):
+    """A formatter that uses ASCII characters only."""
     ROOT = ' --.'
     LEVEL_NEXT = '|  '
     BRANCH_NEXT = '|- '
@@ -42,7 +45,7 @@ def ptree(obj, formatter=None) -> None:
     :py:class:`collections.abc.Iterable` instances will be branches, with the exception of :py:class:`str` and :py:class:`bytes`.
     All other objects will be leaves.
 
-    :param formatter: Optional formatter object to use Defaults to :class:`printree.UnicodeFormat`.
+    :param formatter: Optional :class:`printree.Formatter` to use to generate each part of the tree. An instance of the given class will be created at execution time.
 
     Examples:
         >>> ptree({"x", len, 42})
@@ -66,7 +69,7 @@ def ptree(obj, formatter=None) -> None:
            |- B: 42
            `- C: <Recursion on dict with id=140712966998864>
     """
-    formatter = formatter() if formatter else UnicodeFormatter()
+    formatter = formatter() if formatter else Formatter()
     def f():
         _recursive_ids.set(set())
         for i in _itree(obj, formatter, subscription=formatter.ROOT):
@@ -77,7 +80,7 @@ def ptree(obj, formatter=None) -> None:
 
 def ftree(obj, formatter=None) -> str:
     """Return the formatted tree representation of the given object data structure as a string."""
-    formatter = formatter() if formatter else UnicodeFormatter()
+    formatter = formatter() if formatter else Formatter()
     def f():
         _recursive_ids.set(set())
         return "\n".join(_itree(obj, formatter, subscription=formatter.ROOT))
