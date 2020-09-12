@@ -7,31 +7,50 @@ from collections import abc
 _recursive_ids = contextvars.ContextVar('recursive')
 
 
-class Formatter:
+class TreePrinter:
     """Default formatter for printree.
 
     Uses unicode characters.
     """
-    level = 0
     ROOT = ' ──┐'
     LEVEL_NEXT = '│  '
     LEVEL_LAST = '   '
     BRANCH_NEXT = '├─ '
     BRANCH_LAST = '└─ '
 
-    @classmethod
-    def format_branch(cls, obj: list) -> str:
-        """Get the string representation of a branch element in the tree."""
-        items = len(obj)
-        return f' [items={items}]' if items else " [empty]"
+    def __init__(self, depth: int = None):
+        self.level = 0
+        self.depth = depth
 
-    @classmethod
-    def format_leaf(cls, obj) -> str:
+    @property
+    def depth(self):
+        return self._depth
+
+    @depth.setter
+    def depth(self, value):
+        if not (isinstance(value, int) or value is None):
+            raise ValueError(f"Expected depth to be an int or None. Got '{type(value).__name__}' instead.")
+        self._depth = value if value is not None else float("inf")
+
+    def format_branch(self, obj, items: list) -> str:
+        """Get the string representation of a branch element in the tree."""
+        return ''
+        contents = f'items={len(items)}' if len(items) else "empty"
+        # return f' [{contents}] ({type(obj).__name__})'
+        return f' [{contents}]'
+
+    def format_leaf(self, obj) -> str:
         """Get the string representation of a leaf element in the tree."""
         return f': {obj}'
 
+    def ptree(self, obj):
+        ptree(obj, formatter=self)
 
-class AsciiFormatter(Formatter):
+    def ftree(self, obj):
+        return ftree(obj, formatter=self)
+
+
+class AsciiPrinter(TreePrinter):
     """A formatter that uses ASCII characters only."""
     ROOT = ' --.'
     LEVEL_NEXT = '|  '
@@ -39,7 +58,7 @@ class AsciiFormatter(Formatter):
     BRANCH_LAST = '`- '
 
 
-def ptree(obj, formatter=None) -> None:
+def ptree(obj, formatter=TreePrinter()) -> None:
     """Print a tree-like representation of the given object data structure.
 
     :py:class:`collections.abc.Iterable` instances will be branches, with the exception of :py:class:`str` and :py:class:`bytes`.
@@ -69,8 +88,8 @@ def ptree(obj, formatter=None) -> None:
            |- B: 42
            `- C: <Recursion on dict with id=140712966998864>
     """
-    formatter = formatter() if formatter else Formatter()
     def f():
+        formatter.level = 0
         _recursive_ids.set(set())
         for i in _itree(obj, formatter, subscription=formatter.ROOT):
             print(i)
@@ -78,10 +97,10 @@ def ptree(obj, formatter=None) -> None:
     ctx.run(f)
 
 
-def ftree(obj, formatter=None) -> str:
+def ftree(obj, formatter=TreePrinter()) -> str:
     """Return the formatted tree representation of the given object data structure as a string."""
-    formatter = formatter() if formatter else Formatter()
     def f():
+        formatter.level = 0
         _recursive_ids.set(set())
         return "\n".join(_itree(obj, formatter, subscription=formatter.ROOT))
     ctx = contextvars.copy_context()
@@ -103,8 +122,11 @@ def _itree(obj, formatter, subscription, prefix="", last=True, level=0):
     recursive_ids = _recursive_ids.get()
     recursive = isrecursive(obj)
     objid = id(obj)
+    typename = type(obj).__name__
     if recursive and objid in recursive_ids:
-        item_repr = f": <Recursion on {type(obj).__name__} with id={objid}>"
+        item_repr = f": <Recursion on {typename} with id={objid}>"
+    elif formatter.level == formatter.depth:
+        item_repr = " [...]"
     elif isinstance(obj, (str, bytes)):
         # for text, indent new lines with an appropiate prefix so that
         # a string like "new\nline" is adjusted to something like:
@@ -124,12 +146,9 @@ def _itree(obj, formatter, subscription, prefix="", last=True, level=0):
         ismap = isinstance(obj, abc.Mapping)
         enumerateable = obj.items() if ismap else obj
         accessor = (lambda i, v: (i, *v)) if ismap else lambda i, v: (i, i, v)
-        try:
-            enumerated = enumerate(sorted(enumerateable))
-        except (TypeError, RecursionError):  # un-sortable, enumerate as-is
-            enumerated = enumerate(enumerateable)
+        enumerated = enumerate(enumerateable)
         children.extend(accessor(*enum) for enum in enumerated)
-        item_repr = formatter.format_branch(children)
+        item_repr = formatter.format_branch(obj, children)
     else:
         item_repr = formatter.format_leaf(obj)
 
