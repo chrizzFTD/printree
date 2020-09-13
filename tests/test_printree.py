@@ -182,7 +182,7 @@ class TestTree(unittest.TestCase):
         dct = {
             "foo": [],
             True: {
-                "uno": {"ABC", "XYZ"},
+                "uno": ("ABC", "XYZ"),
                 "dos": r"B:\newline\tab\like.ext",
                 "tres": {
                     "leaf": b"bytes",
@@ -202,6 +202,6 @@ class TestTree(unittest.TestCase):
             ptree(dct, depth=1, annotated=True)  # should be exactly as the ftree result, plus a new line
             self.assertEqual(redirected.getvalue(), actual+'\n')
 
-        expected = f"┐\n├─ foo\n├─ True\n│  ├─ uno [...]\n│  ├─ dos: B:\\newline\\tab\\like.ext\n│  └─ tres [...]\n├─ ('tuple', 'as', 'key')\n│  └─ multi\n│     lined\n│     \ttabbed key: multi\n│                   line\n│                   \ttabbed value\n└─ recursion\n   ├─ 0: 1\n   ├─ 1: <Recursion on dict with id={id(dct)}>\n   └─ 2: 2"
-        actual = ftree(dct, depth=2)
+        expected = f"┐ → dict[items=4]\n├─ foo → list[empty]\n├─ True → dict[items=3]\n│  ├─ uno → tuple[items=2] [...]\n│  ├─ dos: B:\\newline\\tab\\like.ext\n│  └─ tres → dict[items=2] [...]\n├─ ('tuple', 'as', 'key') → dict[items=1]\n│  └─ multi\n│     lined\n│     \ttabbed key: multi\n│                   line\n│                   \ttabbed value\n└─ recursion → list[items=3]\n   ├─ 0: 1\n   ├─ 1: <Recursion on dict with id={id(dct)}>\n   └─ 2: 2"
+        actual = ftree(dct, depth=2, annotated=True)
         self.assertEqual(expected, actual)

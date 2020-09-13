@@ -76,17 +76,19 @@ The `annotated` and `depth` options modify verbosity of the output when creating
 ┐ → dict[items=4]
 ├─ foo → list[empty]
 ├─ True → dict[items=3]
-│  ├─ uno: [...]
-│  ├─ dos: [...]
-│  └─ tres: [...]
+│  ├─ uno → set[items=2] [...]
+│  ├─ dos: B:\newline\tab\like.ext
+│  └─ tres → dict[items=2] [...]
 ├─ ('tuple', 'as', 'key') → dict[items=1]
 │  └─ multi
 │     lined
-│       tabbed key: [...]
+│       tabbed key: multi
+│                   line
+│                       tabbed value
 └─ recursion → list[items=3]
-   ├─ 0: [...]
-   ├─ 1: <Recursion on dict with id=2365220724288>
-   └─ 2: [...]
+   ├─ 0: 1
+   ├─ 1: <Recursion on dict with id=2070830709888>
+   └─ 2: 2
 ``` 
 
 ## Customizing formatting
