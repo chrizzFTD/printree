@@ -118,12 +118,13 @@ def _itree(obj, formatter, subscription, prefix="", last=False, level=0, depth=0
     objid = id(obj)
     recursive = isrecursive(obj)
     recursive_ids = _recursive_ids.get()
+    sprout_repr = ': ' if sprout else ''
     newlevel = '   ' if last else formatter.EDGE
     newline_prefix = f"{prefix}{newlevel}"
     newprefix = f"{prefix}{formatter.BRANCH_LAST if last else formatter.BRANCH_NEXT}" if sprout else ""
     subscription_repr = f'{newprefix}{_newline_repr(f"{subscription}", newline_prefix)}'
     if recursive and objid in recursive_ids:
-        item_repr = f"{': ' if sprout else ''}<Recursion on {type(obj).__name__} with id={objid}>"
+        item_repr = f"{sprout_repr}<Recursion on {type(obj).__name__} with id={objid}>"
     elif isinstance(obj, (str, bytes)):
         # Indent new lines with a prefix so that a string like "new\nline" adjusts to:
         #      ...
@@ -134,7 +135,7 @@ def _itree(obj, formatter, subscription, prefix="", last=False, level=0, depth=0
         prefix_len = len(prefix)  # how much we have to copy before subscription string
         last_line = subscription_repr.expandtabs().splitlines()[-1]
         newline_padding = len(last_line[prefix_len:]) + prefix_len + 2  # last 2 are ": "
-        item_repr = _newline_repr(f"{': ' if sprout else ''}{obj}", f"{last_line[:prefix_len] + newlevel:<{newline_padding}}")
+        item_repr = _newline_repr(f"{sprout_repr}{obj}", f"{last_line[:prefix_len] + newlevel:<{newline_padding}}")
     elif isinstance(obj, abc.Iterable):
         # for other iterable objects, enumerate to track subscription and child count
         ismap = isinstance(obj, abc.Mapping)
@@ -148,7 +149,7 @@ def _itree(obj, formatter, subscription, prefix="", last=False, level=0, depth=0
             item_repr = f"{item_repr} [...]"
             children.clear()  # avoid deeper traversal
     else:
-        item_repr = f"{': ' if sprout else ''}{obj}"
+        item_repr = f"{sprout_repr}{obj}"
     if recursive:
         recursive_ids.add(objid)
 
