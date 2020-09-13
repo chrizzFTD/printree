@@ -30,6 +30,7 @@ pip install printree
 Instances of [abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable) (with the exception of [str](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str) & [bytes](https://docs.python.org/3/library/stdtypes.html#bytes-objects)) will be represented as branches.
 All other objects will be considered "leaf nodes":
 ```python
+>>> from printree import ptree
 >>> dct = {
 ...     "foo": [],
 ...     True: {
@@ -44,7 +45,6 @@ All other objects will be considered "leaf nodes":
 ...         {"multi\nlined\n\ttabbed key": "multi\nline\n\ttabbed value"}
 ... }
 >>> dct["recursion"] = [1, dct, 2]
->>> from printree import ptree
 >>> ptree(dct)
 ┐
 ├─ foo
