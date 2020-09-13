@@ -14,7 +14,7 @@ pip install printree
 ```
 
 ## Usage
-`printree` aims to be similar to pretty print ([pprint](https://docs.python.org/3/library/pprint.html)) but in the form of a tree:
+`printree` aims to be similar to pretty print ([pprint](https://docs.python.org/3/library/pprint.html)) with a format inspired by the [tree command](https://en.wikipedia.org/wiki/Tree_(command):
 
 ```python
 >>> from printree import ptree, ftree
@@ -28,7 +28,7 @@ pip install printree
 ```
 
 Instances of [abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable) (with the exception of [str](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str) & [bytes](https://docs.python.org/3/library/stdtypes.html#bytes-objects)) will be represented as branches.
-All other objects will be considered "leaf nodes":
+All other objects will be considered leaf nodes:
 ```python
 >>> from printree import ptree
 >>> dct = {
@@ -92,8 +92,7 @@ The `annotated` and `depth` arguments modify verbosity of the output when creati
 ``` 
 
 ## Customizing formatting
-Different representations can be achieved by subclassing the `TreePrinter` object. 
-An `AsciiPrinter` is provided as an example:
+`TreePrinter` subclasses can change each of the string representations of the tree. The subclass `AsciiPrinter` is provided as an example:
 ```python
 >>> from printree import AsciiPrinter
 >>> obj = [42, {"foo": (True, False)}]
@@ -105,8 +104,7 @@ An `AsciiPrinter` is provided as an example:
       |-- 0: True
       `-- 1: False
 ```
-New formatters can change each of the string representations of the tree.
-The main members to override from the provided classes are:
+The main members to override are:
 - `ROOT`
 - `EDGE`
 - `BRANCH_NEXT`
@@ -115,8 +113,7 @@ The main members to override from the provided classes are:
 
 The `level` attribute will be automatically set on the printer instance to indicate the current depth in the traversal of the tree.
 
-For example, to make the formatter print with a different color on every branch level, this could be an approach:
-
+To print each branch level with a different color, something like the following could be implemented:
 ```python
 from printree import TreePrinter
 
