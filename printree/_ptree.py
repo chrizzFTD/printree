@@ -27,7 +27,7 @@ class TreePrinter:
         """
         self.level = 0
         self.depth = depth
-        self.annotated = annotated
+        self.annotated = bool(annotated)
 
     @property
     def depth(self):
@@ -36,7 +36,9 @@ class TreePrinter:
     @depth.setter
     def depth(self, value):
         if not (isinstance(value, int) or value is None):
-            raise ValueError(f"Expected depth to be an int or None. Got '{type(value).__name__}' instead.")
+            raise TypeError(f"Expected depth to be an int or None. Got '{type(value).__name__}' instead.")
+        if isinstance(value, int) and value < 0:
+            raise ValueError(f"Depth must be a positive integer or zero. Got '{value}' instead.")
         self._depth = value if value else float("inf")
 
     def format_branch(self, obj, items: list) -> str:

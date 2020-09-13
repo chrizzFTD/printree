@@ -11,6 +11,14 @@ class TestTree(unittest.TestCase):
         expected = '┐42'
         self.assertEqual(actual, expected)
 
+    def test_invalid_arguments(self):
+        """Ensure we fail with invalid depth arguments"""
+        with self.assertRaises(TypeError):
+            ftree(42, depth="")
+
+        with self.assertRaises(ValueError):
+            ftree(42, depth=-1)
+
     def test_flat_list(self):
         """Confirm a flat list outputs as expected:
             ┐
