@@ -125,8 +125,6 @@ def _itree(obj, formatter, subscription, prefix="", last=False, level=0, depth=0
     subscription_repr = f'{newprefix}{_newline_repr(f"{subscription}", newline_prefix)}'
     if recursive and objid in recursive_ids:
         item_repr = f"{': ' if sprout else ''}<Recursion on {type(obj).__name__} with id={objid}>"
-    elif level == depth:
-        item_repr = f"{': ' if sprout else ''}[...]"
     elif isinstance(obj, (str, bytes)):
         # Indent new lines with a prefix so that a string like "new\nline" adjusts to:
         #      ...
@@ -146,6 +144,9 @@ def _itree(obj, formatter, subscription, prefix="", last=False, level=0, depth=0
         enumerated = enumerate(enumerateable)
         children.extend(accessor(*enum) for enum in enumerated)
         item_repr = formatter.format_branch(obj, children)
+        if children and level == depth:
+            item_repr = f"{item_repr} [...]"
+            children.clear()  # avoid deeper traversal
     else:
         item_repr = f"{': ' if sprout else ''}{obj}"
     if recursive:
