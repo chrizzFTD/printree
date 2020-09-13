@@ -108,8 +108,7 @@ An `AsciiPrinter` is provided as an example:
 New formatters can change each of the string representations of the tree.
 The main members to override from the provided classes are:
 - `ROOT`
-- `LEVEL_NEXT`
-- `LEVEL_LAST`
+- `EDGE`
 - `BRANCH_NEXT`
 - `BRANCH_LAST`
 - `ARROW`
@@ -132,7 +131,7 @@ class ColoredTree(TreePrinter):
     _RESET = '\033[0m'
 
     def __getattribute__(self, item):
-        if item in ("LEVEL_NEXT", "LEVEL_LAST", "BRANCH_NEXT", "BRANCH_LAST"):
+        if item in ("EDGE", "BRANCH_NEXT", "BRANCH_LAST"):
             return f"{self.color}{getattr(super(), item)}{self._RESET}"
         return super().__getattribute__(item)
 

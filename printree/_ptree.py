@@ -8,13 +8,12 @@ _recursive_ids = contextvars.ContextVar('recursive')
 
 
 class TreePrinter:
-    """Default formatter for printree.
+    """Default printer for printree.
 
     Uses unicode characters.
     """
     ROOT = '┐'
-    LEVEL_NEXT = '│  '
-    LEVEL_LAST = '   '
+    EDGE = '│  '
     BRANCH_NEXT = '├─ '
     BRANCH_LAST = '└─ '
     ARROW = '→'
@@ -58,9 +57,9 @@ class TreePrinter:
 
 
 class AsciiPrinter(TreePrinter):
-    """A formatter that uses ASCII characters only."""
+    """A printer that uses ASCII characters only."""
     ROOT = '.'
-    LEVEL_NEXT = '|  '
+    EDGE = '|  '
     BRANCH_NEXT = '|- '
     BRANCH_LAST = '`- '
     ARROW = '->'
@@ -76,23 +75,27 @@ def ptree(obj, depth: int = None, annotated: bool = False) -> None:
     :param annotated: Whether or not to include annotations for branches, like the object type and amount of children.
 
     Examples:
-        >>> ptree({"x", len, 42})  # will print to the output console
+        >>> dct = {"A": {"x\\ny", (42, -17, 0.01), True}, "B": 42}
+        >>> ptree(dct)
         ┐
-        ├─ 0: x
-        ├─ 1: <built-in function len>
-        └─ 2: 42
+        ├─ A
+        │  ├─ 0: x
+        │  │     y
+        │  ├─ 1
+        │  │  ├─ 0: 42
+        │  │  ├─ 1: -17
+        │  │  └─ 2: 0.01
+        │  └─ 2: True
+        └─ B: 42
 
-        >>> dct = {"A": ("x\\ny", (42, -17, 0.01), True), "B": 42}
-        >>> dct["C"] = dct
-        >>> ptree(dct, depth=2, annotated=True)
-        ┐ → dict[items=3]
-        ├─ A → tuple[items=3]
+        >>> ptree(dct, annotated=True, depth=2)
+        ┐ → dict[items=2]
+        ├─ A → set[items=3]
         │  ├─ 0: x
         │  │     y
         │  ├─ 1 → tuple[items=3] [...]
         │  └─ 2: True
-        ├─ B: 42
-        └─ C: <Recursion on dict with id=2070830710272>
+        └─ B: 42
     """
     TreePrinter(depth=depth, annotated=annotated).ptree(obj)
 
@@ -115,7 +118,7 @@ def _itree(obj, formatter, subscription, prefix="", last=False, level=0, depth=0
     objid = id(obj)
     recursive = isrecursive(obj)
     recursive_ids = _recursive_ids.get()
-    newlevel = formatter.LEVEL_LAST if last else formatter.LEVEL_NEXT
+    newlevel = '   ' if last else formatter.EDGE
     newline_prefix = f"{prefix}{newlevel}"
     newprefix = f"{prefix}{formatter.BRANCH_LAST if last else formatter.BRANCH_NEXT}" if sprout else ""
     subscription_repr = f'{newprefix}{_newline_repr(f"{subscription}", newline_prefix)}'
