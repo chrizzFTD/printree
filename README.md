@@ -14,7 +14,7 @@ pip install printree
 ```
 
 ## Usage
-`printree` aims to be similar to pretty print ([pprint](https://docs.python.org/3/library/pprint.html)) with a format inspired by the [tree command](https://en.wikipedia.org/wiki/Tree_(command)):
+`printree` aims to be similar to pretty print ([pprint](https://docs.python.org/3/library/pprint.html)) with a format inspired by the [tree command](https://en.wikipedia.org/wiki/Tree_(command)#Example):
 
 ```python
 >>> from printree import ptree, ftree
