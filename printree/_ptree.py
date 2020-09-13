@@ -13,9 +13,9 @@ class TreePrinter:
     Uses unicode characters.
     """
     ROOT = '┐'
-    EDGE = '│  '
-    BRANCH_NEXT = '├─ '
-    BRANCH_LAST = '└─ '
+    EDGE = '│   '
+    BRANCH_NEXT = '├── '
+    BRANCH_LAST = '└── '
     ARROW = '→'
 
     def __init__(self, depth: int = None, annotated: bool = False):
@@ -59,9 +59,9 @@ class TreePrinter:
 class AsciiPrinter(TreePrinter):
     """A printer that uses ASCII characters only."""
     ROOT = '.'
-    EDGE = '|  '
-    BRANCH_NEXT = '|- '
-    BRANCH_LAST = '`- '
+    EDGE = '|   '
+    BRANCH_NEXT = '|-- '
+    BRANCH_LAST = '`-- '
     ARROW = '->'
 
 

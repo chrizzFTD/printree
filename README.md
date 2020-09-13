@@ -20,11 +20,11 @@ pip install printree
 >>> from printree import ptree, ftree
 >>> ptree({"x", len, 42})  # will print to the output console
 ┐
-├─ 0: x
-├─ 1: <built-in function len>
-└─ 2: 42
+├── 0: x
+├── 1: <built-in function len>
+└── 2: 42
 >>> ftree({"x", len, 42})  # will return a string representation
-'┐\n├─ 0: x\n├─ 1: <built-in function len>\n└─ 2: 42'
+'┐\n├── 0: x\n├── 1: <built-in function len>\n└── 2: 42'
 ```
 
 Instances of [abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable) (with the exception of [str](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str) & [bytes](https://docs.python.org/3/library/stdtypes.html#bytes-objects)) will be represented as branches.
@@ -47,48 +47,48 @@ All other objects will be considered "leaf nodes":
 >>> dct["recursion"] = [1, dct, 2]
 >>> ptree(dct)
 ┐
-├─ foo
-├─ True
-│  ├─ uno
-│  │  ├─ 0: XYZ
-│  │  └─ 1: ABC
-│  ├─ dos: B:\newline\tab\like.ext
-│  └─ tres
-│     ├─ leaf: b'bytes'
-│     └─ numbers
-│        ├─ 0: 42
-│        ├─ 1: -17
-│        └─ 2: 0.01
-├─ ('tuple', 'as', 'key')
-│  └─ multi
-│     lined
+├── foo
+├── True
+│   ├── uno
+│   │   ├── 0: ABC
+│   │   └── 1: XYZ
+│   ├── dos: B:\newline\tab\like.ext
+│   └── tres
+│      ├── leaf: b'bytes'
+│      └── numbers
+│         ├── 0: 42
+│         ├── 1: -17
+│         └── 2: 0.01
+├── ('tuple', 'as', 'key')
+│   └── multi
+│      lined
 │       tabbed key: multi
 │                   line
 │                       tabbed value
-└─ recursion
-   ├─ 0: 1
-   ├─ 1: <Recursion on dict with id=2735472957952>
-   └─ 2: 2
+└── recursion
+   ├── 0: 1
+   ├── 1: <Recursion on dict with id=1969241820608>
+   └── 2: 2
 ```
 The `annotated` and `depth` arguments modify verbosity of the output when creating the tree representation:
 ```python
 >>> ptree(dct, depth=2, annotated=True)
 ┐ → dict[items=4]
-├─ foo → list[empty]
-├─ True → dict[items=3]
-│  ├─ uno → set[items=2] [...]
-│  ├─ dos: B:\newline\tab\like.ext
-│  └─ tres → dict[items=2] [...]
-├─ ('tuple', 'as', 'key') → dict[items=1]
-│  └─ multi
-│     lined
+├── foo → list[empty]
+├── True → dict[items=3]
+│   ├── uno → set[items=2] [...]
+│   ├── dos: B:\newline\tab\like.ext
+│   └── tres → dict[items=2] [...]
+├── ('tuple', 'as', 'key') → dict[items=1]
+│   └── multi
+│      lined
 │       tabbed key: multi
 │                   line
 │                       tabbed value
-└─ recursion → list[items=3]
-   ├─ 0: 1
-   ├─ 1: <Recursion on dict with id=2070830709888>
-   └─ 2: 2
+└── recursion → list[items=3]
+   ├── 0: 1
+   ├── 1: <Recursion on dict with id=1969241820608>
+   └── 2: 2
 ``` 
 
 ## Customizing formatting
@@ -99,11 +99,11 @@ An `AsciiPrinter` is provided as an example:
 >>> obj = [42, {"foo": (True, False)}]
 >>> AsciiPrinter(annotated=True).ptree(obj)
 . -> list[items=2]
-|- 0: 42
-`- 1 -> dict[items=1]
-   `- foo -> tuple[items=2]
-      |- 0: True
-      `- 1: False
+|-- 0: 42
+`-- 1 -> dict[items=1]
+   `-- foo -> tuple[items=2]
+      |-- 0: True
+      `-- 1: False
 ```
 New formatters can change each of the string representations of the tree.
 The main members to override from the provided classes are:
