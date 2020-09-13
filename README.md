@@ -97,11 +97,11 @@ An `AsciiPrinter` is provided as an example:
 ```python
 >>> from printree import AsciiPrinter
 >>> obj = [42, {"foo": (True, False)}]
->>> AsciiPrinter().ptree(obj)
-.
+>>> AsciiPrinter(annotated=True).ptree(obj)
+. -> list[items=2]
 |- 0: 42
-`- 1
-   `- foo
+`- 1 -> dict[items=1]
+   `- foo -> tuple[items=2]
       |- 0: True
       `- 1: False
 ```
