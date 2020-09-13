@@ -20,6 +20,11 @@ class TreePrinter:
     ARROW = '→'
 
     def __init__(self, depth: int = None, annotated: bool = False):
+        """
+
+        :param depth: If the data structure being printed is too deep, the next contained level is replaced by [...]. By default, there is no constraint on the depth (0) of the objects being formatted.
+        :param annotated:
+        """
         self.level = 0
         self.depth = depth
         self.annotated = annotated
@@ -96,7 +101,7 @@ def ptree(obj, depth:int=None, annotated:bool=False) -> None:
     TreePrinter(depth=depth, annotated=annotated).ptree(obj)
 
 
-def ftree(obj,depth:int=None, annotated:bool=False) -> str:
+def ftree(obj, depth:int=None, annotated:bool=False) -> str:
     """Return the formatted tree representation of the given object data structure as a string."""
     return TreePrinter(depth=depth, annotated=annotated).ftree(obj)
 

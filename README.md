@@ -27,7 +27,7 @@ pip install printree
 '┐\n├─ 0: x\n├─ 1: <built-in function len>\n└─ 2: 42'
 ```
 
-Instances of [abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable) (with the exception of [str](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str) & [bytes](https://docs.python.org/3/library/stdtypes.html#bytes-objects)) should be translated into a tree-like form.
+Instances of [abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable) (with the exception of [str](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str) & [bytes](https://docs.python.org/3/library/stdtypes.html#bytes-objects)) will be represented as branches.
 All other objects will be considered "leaf nodes":
 ```python
 >>> dct = {
@@ -40,49 +40,68 @@ All other objects will be considered "leaf nodes":
 ...             "numbers": (42, -17, 0.01)
 ...         },
 ...     },
-...     ("unsortable", ("tuple", "as", "key")):
+...     ("tuple", "as", "key"):
 ...         {"multi\nlined\n\ttabbed key": "multi\nline\n\ttabbed value"}
 ... }
 >>> dct["recursion"] = [1, dct, 2]
+>>> from printree import ptree
 >>> ptree(dct)
- ──┐
-   ├─ foo
-   ├─ True
-   │  ├─ uno
-   │  │  ├─ 0: ABC
-   │  │  └─ 1: XYZ
-   │  ├─ dos: B:\newline\tab\like.ext
-   │  └─ tres
-   │     ├─ leaf: b'bytes'
-   │     └─ numbers
-   │        ├─ 0: 42
-   │        ├─ 1: -17
-   │        └─ 2: 0.01
-   ├─ ('tuple', 'as', 'key')
-   │  └─ multi
-   │     lined
-   │            tabbed key: multi
-   │                        line
-   │                            tabbed value
-   └─ recursion
-      ├─ 0: 1
-      ├─ 1: <Recursion on dict with id=2039314371008>
-      └─ 2: 2
+┐
+├─ foo
+├─ True
+│  ├─ uno
+│  │  ├─ 0: XYZ
+│  │  └─ 1: ABC
+│  ├─ dos: B:\newline\tab\like.ext
+│  └─ tres
+│     ├─ leaf: b'bytes'
+│     └─ numbers
+│        ├─ 0: 42
+│        ├─ 1: -17
+│        └─ 2: 0.01
+├─ ('tuple', 'as', 'key')
+│  └─ multi
+│     lined
+│       tabbed key: multi
+│                   line
+│                       tabbed value
+└─ recursion
+   ├─ 0: 1
+   ├─ 1: <Recursion on dict with id=2735472957952>
+   └─ 2: 2
 ```
-
-## Custom formatters 
-A custom TreePrinter object can be passed to achieve a different representation. 
-An `AsciiFormatter` is provided to use:
+The `annotated` and `depth` options modify verbosity of the output when creating the tree representation:
 ```python
->>> from printree import ptree, AsciiPrinter
+>>> ptree(dct, depth=2, annotated=True)
+┐ → dict[items=4]
+├─ foo → list[empty]
+├─ True → dict[items=3]
+│  ├─ uno: [...]
+│  ├─ dos: [...]
+│  └─ tres: [...]
+├─ ('tuple', 'as', 'key') → dict[items=1]
+│  └─ multi
+│     lined
+│       tabbed key: [...]
+└─ recursion → list[items=3]
+   ├─ 0: [...]
+   ├─ 1: <Recursion on dict with id=2365220724288>
+   └─ 2: [...]
+``` 
+
+## Customizing formatting
+Different representations can be achieved by subclassing the `TreePrinter` object. 
+An `AsciiPrinter` is provided as an example:
+```python
+>>> from printree import AsciiPrinter
 >>> obj = [42, {"foo": (True, False)}]
->>> ptree(obj, AsciiPrinter())
- --.
-   |- 0: 42
-   `- 1
-      `- foo
-         |- 0: True
-         `- 1: False
+>>> AsciiPrinter().ptree(obj)
+.
+|- 0: 42
+`- 1
+   `- foo
+      |- 0: True
+      `- 1: False
 ```
 New formatters can change each of the string representations of the tree.
 The main members to override from the provided classes are:
@@ -91,15 +110,16 @@ The main members to override from the provided classes are:
 - `LEVEL_LAST`
 - `BRANCH_NEXT`
 - `BRANCH_LAST`
+- `ARROW`
 
-The `level` attribute will be automatically set on the formatter instance to indicate the current depth in the traversal of the tree.
+The `level` attribute will be automatically set on the printer instance to indicate the current depth in the traversal of the tree.
 
 For example, to make the formatter print with a different color on every branch level, this could be an approach:
 
 ```python
-from printree import ptree, UnicodeFormatter
+from printree import TreePrinter
 
-class ColoredUnicode(UnicodeFormatter):
+class ColoredTree(TreePrinter):
     colors = {
         0: '\033[31m',  # red
         1: '\033[32m',  # green
@@ -122,13 +142,14 @@ class ColoredUnicode(UnicodeFormatter):
     def ROOT(self):  # for root (level 0), prefer the color of the children (level 1) 
         return f'{self.colors[1]}{super().ROOT}{self._RESET}'
 
+
 multiline = {"foo": {False: {"AB\nCD": "xy", 42:len}, True: []}, ("bar",): []}
 dct = {"A": multiline, "B": (multiline,), "C\nD": "x\ny", "F": (1, "2")}
 
 import os
 os.system("")  # required on windows only
 
-ptree(dct, formatter=ColoredUnicode)
+ColoredTree().ptree(dct)
 ```
 Which outputs:
 ![](colored_example.svg)
