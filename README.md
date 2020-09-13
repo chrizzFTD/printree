@@ -19,12 +19,12 @@ pip install printree
 ```python
 >>> from printree import ptree, ftree
 >>> ptree({"x", len, 42})  # will print to the output console
- ──┐ [items=3]
-   ├─ 0: x
-   ├─ 1: <built-in function len>
-   └─ 2: 42
+┐
+├─ 0: x
+├─ 1: <built-in function len>
+└─ 2: 42
 >>> ftree({"x", len, 42})  # will return a string representation
-' ──┐ [items=3]\n   ├─ 0: <built-in function len>\n   ├─ 1: x\n   └─ 2: 42'
+'┐\n├─ 0: x\n├─ 1: <built-in function len>\n└─ 2: 42'
 ```
 
 Instances of [abc.Iterable](https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable) (with the exception of [str](https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str) & [bytes](https://docs.python.org/3/library/stdtypes.html#bytes-objects)) should be translated into a tree-like form.
@@ -45,43 +45,44 @@ All other objects will be considered "leaf nodes":
 ... }
 >>> dct["recursion"] = [1, dct, 2]
 >>> ptree(dct)
- ──┐ [items=4]
-   ├─ foo [empty]
-   ├─ True [items=3]
+ ──┐
+   ├─ foo
+   ├─ True
+   │  ├─ uno
+   │  │  ├─ 0: ABC
+   │  │  └─ 1: XYZ
    │  ├─ dos: B:\newline\tab\like.ext
-   │  ├─ tres [items=2]
-   │  │  ├─ leaf: b'bytes'
-   │  │  └─ numbers [items=3]
-   │  │     ├─ 0: -17
-   │  │     ├─ 1: 0.01
-   │  │     └─ 2: 42
-   │  └─ uno [items=2]
-   │     ├─ 0: ABC
-   │     └─ 1: XYZ
-   ├─ ('unsortable', ('tuple', 'as', 'key')) [items=1]
+   │  └─ tres
+   │     ├─ leaf: b'bytes'
+   │     └─ numbers
+   │        ├─ 0: 42
+   │        ├─ 1: -17
+   │        └─ 2: 0.01
+   ├─ ('tuple', 'as', 'key')
    │  └─ multi
    │     lined
    │            tabbed key: multi
    │                        line
    │                            tabbed value
-   └─ recursion [items=3]
+   └─ recursion
       ├─ 0: 1
-      ├─ 1: <Recursion on dict with id=2355961208192>
+      ├─ 1: <Recursion on dict with id=2039314371008>
       └─ 2: 2
 ```
 
 ## Custom formatters 
-By default, a [UnicodeFormatter](printree/_ptree.py) is used, but an `AsciiFormatter` is provided as well:
+A custom TreePrinter object can be passed to achieve a different representation. 
+An `AsciiFormatter` is provided to use:
 ```python
->>> from printree import ptree, AsciiFormatter
+>>> from printree import ptree, AsciiPrinter
 >>> obj = [42, {"foo": (True, False)}]
->>> ptree(obj, AsciiFormatter)
- --. [items=2]
+>>> ptree(obj, AsciiPrinter())
+ --.
    |- 0: 42
-   `- 1 [items=1]
-      `- foo [items=2]
-         |- 0: False
-         `- 1: True
+   `- 1
+      `- foo
+         |- 0: True
+         `- 1: False
 ```
 New formatters can change each of the string representations of the tree.
 The main members to override from the provided classes are:
