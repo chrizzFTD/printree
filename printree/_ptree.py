@@ -20,7 +20,7 @@ class TreePrinter:
 
     def __init__(self, depth: int = None, annotated: bool = False):
         """
-        :param depth: If the data structure being printed is too deep, the next contained level is replaced by [...]. By default, there is no constraint on the depth (0) of the objects being formatted.
+        :param depth: If the data structure being printed is too deep, the next contained level is replaced by [...]. By default, there is no constraint on the depth of the objects being formatted.
         :param annotated: Whether or not to include annotations for branches, like the object type and amount of children.
         """
         self.level = 0
@@ -71,7 +71,7 @@ def ptree(obj, depth: int = None, annotated: bool = False) -> None:
     :py:class:`collections.abc.Iterable` instances will be branches, with the exception of :py:class:`str` and :py:class:`bytes`.
     All other objects will be leaves.
 
-    :param depth: If the data structure being printed is too deep, the next contained level is replaced by [...]. By default, there is no constraint on the depth (0) of the objects being formatted.
+    :param depth: If the data structure being printed is too deep, the next contained level is replaced by [...]. By default, there is no constraint on the depth of the objects being formatted.
     :param annotated: Whether or not to include annotations for branches, like the object type and amount of children.
 
     Examples:
