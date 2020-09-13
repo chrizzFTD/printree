@@ -21,16 +21,16 @@ class TreePrinter:
 
     def __init__(self, depth: int = None, annotated: bool = False):
         """
-
         :param depth: If the data structure being printed is too deep, the next contained level is replaced by [...]. By default, there is no constraint on the depth (0) of the objects being formatted.
-        :param annotated:
+        :param annotated: Whether or not to include annotations for branches, like the object type and amount of children.
         """
         self.level = 0
         self.depth = depth
         self.annotated = bool(annotated)
 
     @property
-    def depth(self):
+    def depth(self) -> int:
+        """Maximum depth to traverse while creating the tree representation."""
         return self._depth
 
     @depth.setter
@@ -40,11 +40,6 @@ class TreePrinter:
         if isinstance(value, int) and value < 0:
             raise ValueError(f"Depth must be a positive integer or zero. Got '{value}' instead.")
         self._depth = value if value else float("inf")
-
-    def format_branch(self, obj, items: list) -> str:
-        """Get the string representation of a branch element in the tree."""
-        contents = f'items={len(items)}' if len(items) else "empty"
-        return f' {self.ARROW} {type(obj).__name__}[{contents}]' if self.annotated else ''
 
     def ptree(self, obj):
         self.level = 0
@@ -71,13 +66,14 @@ class AsciiPrinter(TreePrinter):
     ARROW = '->'
 
 
-def ptree(obj, depth:int=None, annotated:bool=False) -> None:
+def ptree(obj, depth: int = None, annotated: bool = False) -> None:
     """Print a tree-like representation of the given object data structure.
 
     :py:class:`collections.abc.Iterable` instances will be branches, with the exception of :py:class:`str` and :py:class:`bytes`.
     All other objects will be leaves.
 
-    :param formatter: Optional :class:`printree.Formatter` to use to generate each part of the tree. An instance of the given class will be created at execution time.
+    :param depth: If the data structure being printed is too deep, the next contained level is replaced by [...]. By default, there is no constraint on the depth (0) of the objects being formatted.
+    :param annotated: Whether or not to include annotations for branches, like the object type and amount of children.
 
     Examples:
         >>> ptree({"x", len, 42})  # will print to the output console
@@ -88,23 +84,21 @@ def ptree(obj, depth:int=None, annotated:bool=False) -> None:
 
         >>> dct = {"A": ("x\\ny", (42, -17, 0.01), True), "B": 42}
         >>> dct["C"] = dct
-        >>> ptree(dct, formatter=AsciiPrinter())
-        .
-        |- A
-        |  |- 0: True
-        |  |- 1: x\ny
-        |  `- 2
-        |     |- 0: 42
-        |     |- 1: -17
-        |     `- 2: 0.01
-        |- B: 42
-        `- C: <Recursion on dict with id=2955241181376>
+        >>> ptree(dct, depth=2, annotated=True)
+        ┐ → dict[items=3]
+        ├─ A → tuple[items=3]
+        │  ├─ 0: x
+        │  │     y
+        │  ├─ 1 → tuple[items=3] [...]
+        │  └─ 2: True
+        ├─ B: 42
+        └─ C: <Recursion on dict with id=2070830710272>
     """
     TreePrinter(depth=depth, annotated=annotated).ptree(obj)
 
 
 def ftree(obj, depth:int=None, annotated:bool=False) -> str:
-    """Return the formatted tree representation of the given object data structure as a string."""
+    """Return the formatted tree representation of the given object data structure as a string. Arguments are same as `ptree`"""
     return TreePrinter(depth=depth, annotated=annotated).ftree(obj)
 
 
@@ -145,7 +139,8 @@ def _itree(obj, formatter, subscription, prefix="", last=False, level=0, depth=0
         accessor = (lambda i, v: (i, *v)) if ismap else lambda i, v: (i, i, v)
         enumerated = enumerate(enumerateable)
         children.extend(accessor(*enum) for enum in enumerated)
-        item_repr = formatter.format_branch(obj, children)
+        contents = f'items={len(children)}' if children else "empty"
+        item_repr = f' {formatter.ARROW} {type(obj).__name__}[{contents}]' if formatter.annotated else ''
         if children and level == depth:
             item_repr = f"{item_repr} [...]"
             children.clear()  # avoid deeper traversal

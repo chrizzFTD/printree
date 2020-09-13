@@ -70,7 +70,7 @@ All other objects will be considered "leaf nodes":
    ├─ 1: <Recursion on dict with id=2735472957952>
    └─ 2: 2
 ```
-The `annotated` and `depth` options modify verbosity of the output when creating the tree representation:
+The `annotated` and `depth` arguments modify verbosity of the output when creating the tree representation:
 ```python
 >>> ptree(dct, depth=2, annotated=True)
 ┐ → dict[items=4]
