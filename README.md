@@ -50,25 +50,25 @@ All other objects will be considered leaf nodes:
 ├── foo
 ├── True
 │   ├── uno
-│   │   ├── 0: ABC
-│   │   └── 1: XYZ
+│   │   ├── 0: XYZ
+│   │   └── 1: ABC
 │   ├── dos: B:\newline\tab\like.ext
 │   └── tres
-│      ├── leaf: b'bytes'
-│      └── numbers
-│         ├── 0: 42
-│         ├── 1: -17
-│         └── 2: 0.01
+│       ├── leaf: b'bytes'
+│       └── numbers
+│           ├── 0: 42
+│           ├── 1: -17
+│           └── 2: 0.01
 ├── ('tuple', 'as', 'key')
 │   └── multi
-│      lined
-│       tabbed key: multi
-│                   line
-│                       tabbed value
+│       lined
+│               tabbed key: multi
+│                           line
+│                               tabbed value
 └── recursion
-   ├── 0: 1
-   ├── 1: <Recursion on dict with id=1969241820608>
-   └── 2: 2
+    ├── 0: 1
+    ├── 1: <Recursion on dict with id=2414949505984>
+    └── 2: 2
 ```
 The `annotated` and `depth` arguments modify verbosity of the output when creating the tree representation:
 ```python
@@ -81,14 +81,14 @@ The `annotated` and `depth` arguments modify verbosity of the output when creati
 │   └── tres → dict[items=2] [...]
 ├── ('tuple', 'as', 'key') → dict[items=1]
 │   └── multi
-│      lined
-│       tabbed key: multi
-│                   line
-│                       tabbed value
+│       lined
+│               tabbed key: multi
+│                           line
+│                               tabbed value
 └── recursion → list[items=3]
-   ├── 0: 1
-   ├── 1: <Recursion on dict with id=1969241820608>
-   └── 2: 2
+    ├── 0: 1
+    ├── 1: <Recursion on dict with id=2414949505984>
+    └── 2: 2
 ``` 
 
 ## Customizing formatting
@@ -100,9 +100,9 @@ The `annotated` and `depth` arguments modify verbosity of the output when creati
 . -> list[items=2]
 |-- 0: 42
 `-- 1 -> dict[items=1]
-   `-- foo -> tuple[items=2]
-      |-- 0: True
-      `-- 1: False
+    `-- foo -> tuple[items=2]
+        |-- 0: True
+        `-- 1: False
 ```
 The main members to override are:
 - `ROOT`

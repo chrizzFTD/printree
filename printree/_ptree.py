@@ -119,7 +119,7 @@ def _itree(obj, formatter, subscription, prefix="", last=False, level=0, depth=0
     recursive = isrecursive(obj)
     recursive_ids = _recursive_ids.get()
     sprout_repr = ': ' if sprout else ''
-    newlevel = '   ' if last else formatter.EDGE
+    newlevel = '    ' if last else formatter.EDGE
     newline_prefix = f"{prefix}{newlevel}"
     newprefix = f"{prefix}{formatter.BRANCH_LAST if last else formatter.BRANCH_NEXT}" if sprout else ""
     subscription_repr = f'{newprefix}{_newline_repr(f"{subscription}", newline_prefix)}'

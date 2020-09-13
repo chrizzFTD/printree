@@ -136,7 +136,7 @@ class TestTree(unittest.TestCase):
         dct["ZAB\nCD\n\tEF\n\t\tGH\tIJ"] = "xx\nyy\n\tzz"
         dctid = id(dct)
         recid = id(rec)
-        expected = f".\n|-- AB\n|   CD\n|   \tEF\n|   \t\tGH\tIJ: xx\n|                           y\n|                           y\n|                           \tzz\n|-- B\n|   C\n|   |-- 0: 1\n|   |      hello\n|   `-- 1: 2\n|          world\n|-- C\n|   D: x\n|      y\n|-- C\n|   E: x\n|-- C: x\n|      y\n|-- foo\n|-- True\n|   |-- uno\n|   |   |-- 0: A\n|   |   |      B\n|   |   |      C\n|   |   `-- 1: X\n|   |          Y\n|   |          Z\n|   |-- dos: B:\\newline\\tab\\like.ext\n|   `-- tres\n|      |-- leaf: b'bytes'\n|      `-- (42, -17, 0.01)\n|         |-- AB\n|         |   CD\n|         |   \tEF\n|         |   \t\tGH\tIJ: xx\n|         |                         y\n|         |                         y\n|         |                         \tzz\n|         |-- B\n|         |   C\n|         |   |-- 0: 1\n|         |   |      hello\n|         |   `-- 1: 2\n|         |          world\n|         |-- C\n|         |   D: x\n|         |      y\n|         |-- C\n|         |   E: x\n|         `-- C: x\n|                y\n|-- ('tuple', 'as', 'key')\n|   `-- multi\n|      lined\n|      \ttabbed key: multi\n|                   line\n|                   \ttabbed value\n|-- recursion\n|   |-- 0: 1\n|   |-- 1: <Recursion on dict with id={dctid}>\n|   `-- 2: 2\n|-- G\n|   |-- .: <Recursion on dict with id={dctid}>\n|   `-- \n|      |-- 0: 1\n|      |-- 1: 2\n|      `-- 2: <Recursion on list with id={recid}>\n`-- ZAB\n   CD\n   \tEF\n   \t\tGH\tIJ: xx\n                            yy\n                            \tzz"
+        expected = f".\n|-- AB\n|   CD\n|   \tEF\n|   \t\tGH\tIJ: xx\n|                           y\n|                           y\n|                           \tzz\n|-- B\n|   C\n|   |-- 0: 1\n|   |      hello\n|   `-- 1: 2\n|          world\n|-- C\n|   D: x\n|      y\n|-- C\n|   E: x\n|-- C: x\n|      y\n|-- foo\n|-- True\n|   |-- uno\n|   |   |-- 0: A\n|   |   |      B\n|   |   |      C\n|   |   `-- 1: X\n|   |          Y\n|   |          Z\n|   |-- dos: B:\\newline\\tab\\like.ext\n|   `-- tres\n|       |-- leaf: b'bytes'\n|       `-- (42, -17, 0.01)\n|           |-- AB\n|           |   CD\n|           |   \tEF\n|           |   \t\tGH\tIJ: xx\n|           |                               y\n|           |                               y\n|           |                               \tzz\n|           |-- B\n|           |   C\n|           |   |-- 0: 1\n|           |   |      hello\n|           |   `-- 1: 2\n|           |          world\n|           |-- C\n|           |   D: x\n|           |      y\n|           |-- C\n|           |   E: x\n|           `-- C: x\n|                  y\n|-- ('tuple', 'as', 'key')\n|   `-- multi\n|       lined\n|       \ttabbed key: multi\n|                           line\n|                           \ttabbed value\n|-- recursion\n|   |-- 0: 1\n|   |-- 1: <Recursion on dict with id={dctid}>\n|   `-- 2: 2\n|-- G\n|   |-- .: <Recursion on dict with id={dctid}>\n|   `-- \n|       |-- 0: 1\n|       |-- 1: 2\n|       `-- 2: <Recursion on list with id={recid}>\n`-- ZAB\n    CD\n    \tEF\n    \t\tGH\tIJ: xx\n                            yy\n                            \tzz"
         ascii = AsciiPrinter()
         actual = ascii.ftree(dct)
         self.assertEqual(expected, actual)
@@ -149,7 +149,7 @@ class TestTree(unittest.TestCase):
         b = [a]
         a.append(b)
         actual = AsciiPrinter().ftree([a, b])
-        expected = f'.\n|-- 0\n|   `-- 0\n|      `-- 0: <Recursion on list with id={id(a)}>\n`-- 1: <Recursion on list with id={id(b)}>'
+        expected = f'.\n|-- 0\n|   `-- 0\n|       `-- 0: <Recursion on list with id={id(a)}>\n`-- 1: <Recursion on list with id={id(b)}>'
         self.assertEqual(expected, actual)
 
     def test_annotated(self):
@@ -174,7 +174,7 @@ class TestTree(unittest.TestCase):
         inner = []
         ann = {"A": "x\ny", "B": [], "C": (True, False, {"X\nY": (1, 2, 3, inner)})}
         inner.append(ann)
-        expected = f'┐ → list[items=1]\n└── 0 → dict[items=3]\n   ├── A: x\n   │      y\n   ├── B → list[empty]\n   └── C → tuple[items=3]\n      ├── 0: True\n      ├── 1: False\n      └── 2 → dict[items=1]\n         └── X\n            Y → tuple[items=4]\n            ├── 0: 1\n            ├── 1: 2\n            ├── 2: 3\n            └── 3: <Recursion on list with id={id(inner)}>'
+        expected = f'┐ → list[items=1]\n└── 0 → dict[items=3]\n    ├── A: x\n    │      y\n    ├── B → list[empty]\n    └── C → tuple[items=3]\n        ├── 0: True\n        ├── 1: False\n        └── 2 → dict[items=1]\n            └── X\n                Y → tuple[items=4]\n                ├── 0: 1\n                ├── 1: 2\n                ├── 2: 3\n                └── 3: <Recursion on list with id={id(inner)}>'
         actual = ftree(inner, annotated=True)
         self.assertEqual(expected, actual)
 
@@ -210,6 +210,6 @@ class TestTree(unittest.TestCase):
             ptree(dct, depth=1, annotated=True)  # should be exactly as the ftree result, plus a new line
             self.assertEqual(redirected.getvalue(), actual+'\n')
 
-        expected = f"┐ → dict[items=4]\n├── foo → list[empty]\n├── True → dict[items=3]\n│   ├── uno → tuple[items=2] [...]\n│   ├── dos: B:\\newline\\tab\\like.ext\n│   └── tres → dict[items=2] [...]\n├── ('tuple', 'as', 'key') → dict[items=1]\n│   └── multi\n│      lined\n│      \ttabbed key: multi\n│                   line\n│                   \ttabbed value\n└── recursion → list[items=3]\n   ├── 0: 1\n   ├── 1: <Recursion on dict with id={id(dct)}>\n   └── 2: 2"
+        expected = f"┐ → dict[items=4]\n├── foo → list[empty]\n├── True → dict[items=3]\n│   ├── uno → tuple[items=2] [...]\n│   ├── dos: B:\\newline\\tab\\like.ext\n│   └── tres → dict[items=2] [...]\n├── ('tuple', 'as', 'key') → dict[items=1]\n│   └── multi\n│       lined\n│       \ttabbed key: multi\n│                           line\n│                           \ttabbed value\n└── recursion → list[items=3]\n    ├── 0: 1\n    ├── 1: <Recursion on dict with id={id(dct)}>\n    └── 2: 2"
         actual = ftree(dct, depth=2, annotated=True)
         self.assertEqual(expected, actual)
