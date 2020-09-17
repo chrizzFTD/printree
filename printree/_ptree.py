@@ -7,100 +7,154 @@ from collections import abc
 _recursive_ids = contextvars.ContextVar('recursive')
 
 
-def ptree(obj, /) -> None:
+class TreePrinter:
+    """Default printer for printree.
+
+    Uses unicode characters.
+    """
+    ROOT = '┐'
+    EDGE = '│   '
+    BRANCH_NEXT = '├── '
+    BRANCH_LAST = '└── '
+    ARROW = '→'
+
+    def __init__(self, depth: int = None, annotated: bool = False):
+        """
+        :param depth: If the data structure being printed is too deep, the next contained level is replaced by [...]. By default, there is no constraint on the depth of the objects being formatted.
+        :param annotated: Whether or not to include annotations for branches, like the object type and amount of children.
+        """
+        self.level = 0
+        self.depth = depth
+        self.annotated = bool(annotated)
+
+    @property
+    def depth(self) -> int:
+        """Maximum depth to traverse while creating the tree representation."""
+        return self._depth
+
+    @depth.setter
+    def depth(self, value):
+        if not (isinstance(value, int) or value is None):
+            raise TypeError(f"Expected depth to be an int or None. Got '{type(value).__name__}' instead.")
+        if isinstance(value, int) and value < 0:
+            raise ValueError(f"Depth must be a positive integer or zero. Got '{value}' instead.")
+        self._depth = value if value else float("inf")
+
+    def ptree(self, obj):
+        self.level = 0
+        def f():
+            _recursive_ids.set(set())
+            for i in _itree(obj, self, subscription=self.ROOT, depth=self.depth):
+                print(i)
+        contextvars.copy_context().run(f)
+
+    def ftree(self, obj):
+        self.level = 0
+        def f():
+            _recursive_ids.set(set())
+            return "\n".join(_itree(obj, self, subscription=self.ROOT, depth=self.depth))
+        return contextvars.copy_context().run(f)
+
+
+class AsciiPrinter(TreePrinter):
+    """A printer that uses ASCII characters only."""
+    ROOT = '.'
+    EDGE = '|   '
+    BRANCH_NEXT = '|-- '
+    BRANCH_LAST = '`-- '
+    ARROW = '->'
+
+
+def ptree(obj, depth: int = None, annotated: bool = False) -> None:
     """Print a tree-like representation of the given object data structure.
 
     :py:class:`collections.abc.Iterable` instances will be branches, with the exception of :py:class:`str` and :py:class:`bytes`.
     All other objects will be leaves.
 
+    :param depth: If the data structure being printed is too deep, the next contained level is replaced by [...]. By default, there is no constraint on the depth of the objects being formatted.
+    :param annotated: Whether or not to include annotations for branches, like the object type and amount of children.
+
     Examples:
-        >>> ptree({"x", len, 42})
-        `- . [items=3]
-           |- 0: <built-in function len>
-           |- 1: 42
-           `- 2: x
-
         >>> dct = {"A": {"x\\ny", (42, -17, 0.01), True}, "B": 42}
-        >>> dct["C"] = dct
         >>> ptree(dct)
-        `- . [items=3]
-           |- A [items=3]
-           |  |- 0: True
-           |  |- 1: x
-           |  |     y
-           |  `- 2 [items=3]
-           |     |- 0: -17
-           |     |- 1: 0.01
-           |     `- 2: 42
-           |- B: 42
-           `- C: <Recursion on dict with id=140712966998864>
+        ┐
+        ├─ A
+        │  ├─ 0: x
+        │  │     y
+        │  ├─ 1
+        │  │  ├─ 0: 42
+        │  │  ├─ 1: -17
+        │  │  └─ 2: 0.01
+        │  └─ 2: True
+        └─ B: 42
+
+        >>> ptree(dct, annotated=True, depth=2)
+        ┐ → dict[items=2]
+        ├─ A → set[items=3]
+        │  ├─ 0: x
+        │  │     y
+        │  ├─ 1 → tuple[items=3] [...]
+        │  └─ 2: True
+        └─ B: 42
     """
-    def f():
-        _recursive_ids.set(set())
-        for i in _itree(obj):
-            print(i)
-    ctx = contextvars.copy_context()
-    ctx.run(f)
+    TreePrinter(depth=depth, annotated=annotated).ptree(obj)
 
 
-def ftree(obj, /) -> str:
-    """Return the formatted tree representation of the given object data structure as a string."""
-    def f():
-        _recursive_ids.set(set())
-        return "\n".join(_itree(obj))
-    ctx = contextvars.copy_context()
-    return ctx.run(f)
+def ftree(obj, depth:int=None, annotated:bool=False) -> str:
+    """Return the formatted tree representation of the given object data structure as a string. Arguments are same as `ptree`"""
+    return TreePrinter(depth=depth, annotated=annotated).ftree(obj)
 
 
-def _newline_repr(obj_repr, /, prefix) -> str:
+def _newline_repr(obj_repr, prefix) -> str:
     counter = count()
     newline = lambda x: next(counter) != 0
     return textwrap.indent(obj_repr, prefix, newline)
 
 
-def _itree(obj, /, subscription=".", prefix="", last=True):
+def _itree(obj, formatter, subscription, prefix="", last=False, level=0, depth=0):
+    formatter.level = level
+    sprout = level > 0
     children = []
-    level_suffix = '   ' if last else '|  '
-    newline_prefix = f"{prefix}{level_suffix}"
-    subscription_repr = _newline_repr(f"{subscription}", newline_prefix)
-    recursive_ids = _recursive_ids.get()
-    recursive = isrecursive(obj)
     objid = id(obj)
+    recursive = isrecursive(obj)
+    recursive_ids = _recursive_ids.get()
+    sprout_repr = ': ' if sprout else ''
+    newlevel = '    ' if last else formatter.EDGE
+    newline_prefix = f"{prefix}{newlevel}"
+    newprefix = f"{prefix}{formatter.BRANCH_LAST if last else formatter.BRANCH_NEXT}" if sprout else ""
+    subscription_repr = f'{newprefix}{_newline_repr(f"{subscription}", newline_prefix)}'
     if recursive and objid in recursive_ids:
-        item_repr = f": <Recursion on {type(obj).__name__} with id={objid}>"
+        item_repr = f"{sprout_repr}<Recursion on {type(obj).__name__} with id={objid}>"
     elif isinstance(obj, (str, bytes)):
-        # for text, indent new lines with an appropiate prefix so that
-        # a string like "new\nline" is adjusted to something like:
+        # Indent new lines with a prefix so that a string like "new\nline" adjusts to:
         #      ...
         #      |- 42: new
         #      |      line
         #      ...
         # for this, calculate how many characters each new line should have for padding
-        # based on the last line from the subscription repr
-        prefix_len = len(newline_prefix)
-        no_prefix = subscription_repr.splitlines()[-1].expandtabs()[prefix_len:]
-        newline_padding = len(no_prefix) + prefix_len + 2  # last 2 are ": " below
-        item_repr = _newline_repr(f': {obj}', f"{newline_prefix:<{newline_padding}}")
+        prefix_len = len(prefix)  # how much we have to copy before subscription string
+        last_line = subscription_repr.expandtabs().splitlines()[-1]
+        newline_padding = len(last_line[prefix_len:]) + prefix_len + 2  # last 2 are ": "
+        item_repr = _newline_repr(f"{sprout_repr}{obj}", f"{last_line[:prefix_len] + newlevel:<{newline_padding}}")
     elif isinstance(obj, abc.Iterable):
-        # for other iterable objects, sort and ennumerate so that we can anticipate what
-        # prefix we should use (e.g. are we the last item in the iteration?)
+        # for other iterable objects, enumerate to track subscription and child count
         ismap = isinstance(obj, abc.Mapping)
         enumerateable = obj.items() if ismap else obj
         accessor = (lambda i, v: (i, *v)) if ismap else lambda i, v: (i, i, v)
-        try:
-            enumerated = enumerate(sorted(enumerateable))
-        except (TypeError, RecursionError):  # un-sortable, enumerate as-is
-            enumerated = enumerate(enumerateable)
+        enumerated = enumerate(enumerateable)
         children.extend(accessor(*enum) for enum in enumerated)
-        item_repr = f' [{items=}]' if (items := len(children)) else " [empty]"
+        contents = f'items={len(children)}' if children else "empty"
+        item_repr = f' {formatter.ARROW} {type(obj).__name__}[{contents}]' if formatter.annotated else ''
+        if children and level == depth:
+            item_repr = f"{item_repr} [...]"
+            children.clear()  # avoid deeper traversal
     else:
-        item_repr = f': {obj}'
-
+        item_repr = f"{sprout_repr}{obj}"
     if recursive:
         recursive_ids.add(objid)
 
-    yield f"{prefix}{'`- ' if last else '|- '}{subscription_repr}{item_repr}"
-    prefix += level_suffix
+    yield f"{subscription_repr}{item_repr}"
     child_count = len(children)
+    prefix += newlevel if sprout else ""  # only add level prefix starting at level 1
     for index, key, value in children:
-        yield from _itree(value, subscription=key, prefix=prefix, last=index == (child_count - 1))
+        yield from _itree(value, formatter, key, prefix, index == (child_count - 1), level + 1, depth)

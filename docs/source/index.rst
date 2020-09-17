@@ -9,7 +9,6 @@
 
 .. mdinclude:: ../../README.md
 
-
 Module contents
 ---------------
 
