@@ -1,9 +1,9 @@
 language: python
 python:
   - 3.7
-  - 3.8
+  - 3.11
 install:
-  - pip install python-coveralls coverage==4.5.4  # ideally only use python-coveralls but coverage-5 broke compatiblity: https://github.com/creare-com/podpac/issues/347
+  - pip install pytest coveralls pytest-cov  # ideally only use python-coveralls but https://github.com/creare-com/podpac/issues/347
   - python setup.py install
 script:
   - coverage run -m unittest discover $TRAVIS_BUILD_DIR -v
