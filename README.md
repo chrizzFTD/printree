@@ -1,6 +1,6 @@
 # printree
 
-[![Build Status](https://travis-ci.org/chrizzFTD/printree.svg?branch=master)](https://travis-ci.org/chrizzFTD/printree)
+[![Python CI](https://github.com/chrizzFTD/printree/actions/workflows/python-package.yml/badge.svg)](https://github.com/chrizzFTD/printree/actions/workflows/python-package.yml)
 [![Coverage Status](https://coveralls.io/repos/github/chrizzFTD/printree/badge.svg?branch=master)](https://coveralls.io/github/chrizzFTD/printree?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/printree/badge/?version=latest)](https://printree.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/printree.svg)](https://badge.fury.io/py/printree)
