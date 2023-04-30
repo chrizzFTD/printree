@@ -68,11 +68,11 @@ class AsciiPrinter(TreePrinter):
 def ptree(obj, depth: int = None, annotated: bool = False) -> None:
     """Print a tree-like representation of the given object data structure.
 
-    :py:class:`collections.abc.Iterable` instances will be branches, with the exception of :py:class:`str` and :py:class:`bytes`.
+    :py:class:`collections.abc.Iterable` instances will be branches, except for :py:class:`str` and :py:class:`bytes`.
     All other objects will be leaves.
 
     :param depth: If the data structure being printed is too deep, the next contained level is replaced by [...]. By default, there is no constraint on the depth of the objects being formatted.
-    :param annotated: Whether or not to include annotations for branches, like the object type and amount of children.
+    :param annotated: Whether to include annotations for branches, like the object type and amount of children.
 
     Examples:
         >>> dct = {"A": {"x\\ny", (42, -17, 0.01), True}, "B": 42}

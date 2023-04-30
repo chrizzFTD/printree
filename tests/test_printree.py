@@ -6,13 +6,13 @@ from printree import ptree, ftree, AsciiPrinter
 
 class TestTree(unittest.TestCase):
     def test_no_container(self):
-        """Confirm a non container formats without issues next to the root"""
+        """Confirm a non container formats without issues next to the root."""
         actual = ftree(42)
         expected = '┐42'
         self.assertEqual(actual, expected)
 
     def test_invalid_arguments(self):
-        """Ensure we fail with invalid depth arguments"""
+        """Ensure we fail with invalid depth arguments."""
         with self.assertRaises(TypeError):
             ftree(42, depth="")
 
