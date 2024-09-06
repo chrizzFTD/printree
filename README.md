@@ -150,4 +150,5 @@ os.system("")  # required on windows only
 ColoredTree().ptree(dct)
 ```
 Which outputs:
+
 ![](https://raw.githubusercontent.com/chrizzFTD/printree/master/colored_example.svg)
