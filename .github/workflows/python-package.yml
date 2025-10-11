@@ -9,11 +9,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.13", "3.13t"]
+        python-version: ["3.9", "3.14", "3.14t"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Set up Python ${{ matrix.python-version }}
-        uses: Quansight-Labs/setup-python@v5  # until https://github.com/actions/setup-python/issues/771 is resolved
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install
@@ -23,7 +23,7 @@ jobs:
           python -m pip install .
       - name: Test
         run: |
-          pytest --cov .
+          PYTHONWARNINGS=error pytest --cov --durations=10 .
         # https://github.com/marketplace/actions/codecov
       - name: Codecov Report
         uses: codecov/codecov-action@v4
