@@ -31,7 +31,7 @@ class TestTree(unittest.TestCase):
         self.assertEqual(actual, expected)
 
     def test_ascii_with_recursion(self):
-        """Confirm multiline key, value and recursion build a similar tree to:
+        r"""Confirm multiline key, value and recursion build a similar tree to:
 
             .
             |-- AB
